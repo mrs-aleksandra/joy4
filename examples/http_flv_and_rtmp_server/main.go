@@ -69,18 +69,18 @@ func main() {
 			return
 		}
 
-		fmt.Println("HandlePublish", conn.URL.Path, ch, channels)
+		fmt.Println("HandlePublish", conn.URL.Path, channels)
 
 		avutil.CopyPackets(ch.que, conn)
 
-		fmt.Println("CopyPackets", conn.URL.Path, ch, channels)
+		// fmt.Println("CopyPackets", conn.URL.Path, ch, channels)
 
 		l.Lock()
 		delete(channels, conn.URL.Path)
 		l.Unlock()
 		ch.que.Close()
 
-		fmt.Println("Close", conn.URL.Path, ch, channels)
+		fmt.Println("Close", conn.URL.Path)
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -116,13 +116,20 @@ func main() {
 
 	// ffmpeg -re -i manuel.mp4 -c copy -f flv rtmp://localhost/movie
 	// ffmpeg -f avfoundation -i "0:0" .... -f flv rtmp://localhost/screen
-	// ffmpeg -f avfoundation -i "0:0" -f flv rtmp://localhost/screen
+	// ffmpeg -f avfoundation -i "0" -c:v libx264 -f flv rtmp://localhost/screen
 
 	// default camera low quality
 	// NOTE: "0:0" means default camera and audio, specify size, video and audio codec
 	// ffmpeg -f avfoundation -i "0:0" -s 768x432 -vcodec h264 -acodec mp2 out.mp4
 	// ffmpeg -f avfoundation -i "0:0" -s 768x432 -f flv rtmp://localhost/screen
 
-	// ffplay http://localhost:8088/movie
-	// ffplay http://localhost:8088/screen
+	// https://www.ffmpeg.org/ffmpeg.html
+
+	// ffmpeg -f avfoundation -i "0:0" -s 768x432 -f flv out.flv
+	// ffmpeg -re -i out.flv -c copy -f flv rtmp://localhost/movie
+	// ffmpeg -re -i manuel.mp4 -map 0 -c:v libx264 -c:a copy -f flv manuel1.flv
+	// ffmpeg -re -i manuel1.flv -c copy -f flv rtmp://localhost/movie
+
+	// ffplay http://localhost:8080/movie
+	// ffplay http://localhost:8080/screen
 }
